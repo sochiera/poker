@@ -1,0 +1,43 @@
+{
+	email {$ACME_EMAIL}
+	admin off
+}
+
+# APP_DOMAIN=poker.example.com  -> automatic HTTPS from Let's Encrypt
+# APP_DOMAIN=http://localhost   -> plain HTTP, for trying the stack locally
+{$APP_DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy no-referrer
+		-Server
+	}
+
+	# `dynamic a` re-resolves the service name, so `--scale app=N` is balanced
+	# across every container. Websocket upgrades are proxied as-is by Caddy.
+	reverse_proxy {
+		dynamic a {
+			name app
+			port 8000
+			refresh 10s
+		}
+		lb_policy round_robin
+		health_uri /healthz
+		health_interval 15s
+		health_timeout 3s
+
+		# Long-lived websockets must not be cut off by a proxy read timeout.
+		transport http {
+			read_timeout 0
+			write_timeout 0
+		}
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

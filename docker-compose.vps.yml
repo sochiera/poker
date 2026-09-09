@@ -1,0 +1,53 @@
+name: planning-poker
+
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --requirepass
+      - ${REDIS_PASSWORD:?set REDIS_PASSWORD in .env}
+      - --appendonly
+      - "yes"
+      - --maxmemory
+      - ${REDIS_MAXMEMORY:-256mb}
+      - --maxmemory-policy
+      - noeviction
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      ROOM_TTL_SECONDS: ${ROOM_TTL_SECONDS:-2592000}
+      SESSION_TTL_SECONDS: ${SESSION_TTL_SECONDS:-900}
+      CONNECTION_LEASE_SECONDS: ${CONNECTION_LEASE_SECONDS:-45}
+      HEARTBEAT_SECONDS: ${HEARTBEAT_SECONDS:-15}
+      MAX_PARTICIPANTS: ${MAX_PARTICIPANTS:-50}
+      APP_WORKERS: ${APP_WORKERS:-2}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    depends_on:
+      redis:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8502:8000"
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  redis-data:

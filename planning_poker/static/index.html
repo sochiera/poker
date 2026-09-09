@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pointy — Planning poker, minus the fuss</title>
+  <link rel="stylesheet" href="./static/styles.css">
+</head>
+<body>
+  <header class="topbar shell"><div class="brand"><span class="brand-mark">P</span> Pointy</div><span class="pill">No sign-up needed</span></header>
+  <main class="landing shell">
+    <section class="landing-copy">
+      <p class="eyebrow">Estimate together · ship with confidence</p>
+      <h1>Planning poker, <span class="highlight">minus the fuss.</span></h1>
+      <p class="lead">Get your team aligned in minutes. Private votes, instant reveals, and zero accounts to slow you down.</p>
+      <p class="trust"><span>●</span> Free, fast, and made for focused teams</p>
+    </section>
+    <section class="panel">
+      <h2>Start a room</h2><p class="panel-sub">Invite your team with one simple link.</p>
+      <form id="create-form" novalidate>
+        <label class="field"><span>Your nickname</span><input name="nickname" maxlength="32" autocomplete="nickname" placeholder="e.g. Maya" required></label>
+        <label class="field"><span>First task <small>(optional)</small></span><input name="task" maxlength="160" placeholder="PROJ-123 · Add password reset"></label>
+        <button class="primary" type="submit">Create a room →</button><p class="error" id="form-error" role="alert"></p>
+      </form>
+      <p class="join-link">Have an invite? Open the link your host shared.</p>
+    </section>
+  </main>
+  <script src="./static/home.js" defer></script>
+</body>
+</html>

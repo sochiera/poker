@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Room · Pointy</title><link rel="stylesheet" href="../static/styles.css?v=5"></head>
+<body>
+  <header class="topbar room-topbar shell">
+    <a class="brand" href="../" style="color:inherit;text-decoration:none"><span class="brand-mark">P</span> Pointy</a>
+    <button class="pill room-code" id="copy-code" title="Copy invite link">Room <strong id="room-code"></strong> · Copy link</button>
+    <span class="connection" id="connection"><i class="connection-dot"></i><span>Connecting</span></span>
+  </header>
+  <main class="room-grid shell">
+    <aside class="sidebar"><p class="section-label">Team · <span id="member-count">0</span></p><div class="participant-list" id="participants"></div></aside>
+    <section class="main">
+      <div class="task-card"><div class="task-copy"><p class="section-label">Now estimating</p><form id="task-form"><input id="task" name="task" maxlength="160" aria-label="Current task" autocomplete="off" value="Waiting for room…"></form></div><span class="round-badge" id="round">Round 1</span></div>
+      <div class="arena">
+        <h3 id="prompt">Pick your estimate</h3><p class="arena-note" id="arena-note">Votes stay hidden until the host reveals them.</p>
+        <div class="cards" id="cards"></div>
+        <div class="progress-row"><div class="progress"><div class="progress-fill" id="progress"></div></div><span id="progress-label">0 of 0 voted</span></div>
+        <button class="danger reveal-btn" id="reveal" type="button">Reveal cards</button>
+      </div>
+      <section class="results" id="results" hidden><p class="section-label">Numeric results · KPT</p><div id="stats"></div></section>
+      <section class="finalize" id="finalize" hidden>
+        <p class="section-label">Save this result</p>
+        <form class="control-row" id="finalize-round">
+          <input name="effort" maxlength="160" placeholder="Final effort" autocomplete="off" required>
+          <button class="primary" type="submit">Save result</button>
+        </form>
+        <p class="hint" id="finalize-hint"></p>
+      </section>
+      <section class="host-controls" id="host-controls" hidden>
+        <p class="section-label">Next round</p>
+        <form class="control-row" id="new-round">
+          <input name="task" maxlength="160" placeholder="Next task (optional)" autocomplete="off">
+          <button class="primary" type="submit">Start new round</button>
+        </form>
+      </section>
+      <button class="secondary claim-host" id="claim-host" hidden>Become host</button>
+      <section class="history" id="history">
+        <div class="history-heading"><p class="section-label">Estimate history</p><button class="secondary export-history" id="export-history" type="button">Copy / export</button></div>
+        <p class="empty-stats" id="history-empty">No completed estimates yet.</p><div id="history-list"></div>
+      </section>
+    </section>
+  </main>
+  <div class="modal" id="join-modal" hidden><div class="modal-card"><h2>Join room <span id="join-code"></span></h2><p class="panel-sub">Choose the name your teammates will see.</p><form id="join-form"><label class="field"><span>Your nickname</span><input name="nickname" maxlength="32" autofocus required></label><button class="primary">Join the room →</button><p class="error" id="join-error"></p></form></div></div>
+  <div class="toast" id="toast" role="alert"></div>
+  <script src="../static/room.js?v=6" defer></script>
+</body></html>

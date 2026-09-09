@@ -1,0 +1,76 @@
+name: planning-poker
+
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --requirepass
+      - ${REDIS_PASSWORD:?set REDIS_PASSWORD in .env}
+      - --appendonly
+      - "yes"
+      - --maxmemory
+      - ${REDIS_MAXMEMORY:-256mb}
+      # Preserve rooms until their configured absolute TTL; alert on write errors
+      # when this limit is reached instead of evicting data early.
+      - --maxmemory-policy
+      - noeviction
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    networks: [backend]
+
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      ROOM_TTL_SECONDS: ${ROOM_TTL_SECONDS:-2592000}
+      SESSION_TTL_SECONDS: ${SESSION_TTL_SECONDS:-900}
+      CONNECTION_LEASE_SECONDS: ${CONNECTION_LEASE_SECONDS:-45}
+      HEARTBEAT_SECONDS: ${HEARTBEAT_SECONDS:-15}
+      MAX_PARTICIPANTS: ${MAX_PARTICIPANTS:-50}
+      APP_WORKERS: ${APP_WORKERS:-2}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    depends_on:
+      redis:
+        condition: service_healthy
+    # Not published on the host: the reverse proxy is the only way in.
+    expose: ["8000"]
+    networks: [backend, edge]
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?set APP_DOMAIN in .env}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - app
+    networks: [edge]
+
+networks:
+  edge:
+  backend:
+    internal: true
+
+volumes:
+  redis-data:
+  caddy-data:
+  caddy-config:
