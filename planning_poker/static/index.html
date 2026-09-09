@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pointy — Planning poker, minus the fuss</title>
-  <link rel="stylesheet" href="./static/styles.css">
+  <script>(function(){var t='dark';try{var s=localStorage.getItem('pointy:theme');if(s==='light'||s==='dark')t=s}catch(e){}document.documentElement.dataset.theme=t}())</script>
+  <link rel="stylesheet" href="./static/styles.css?v=7">
 </head>
 <body>
-  <header class="topbar shell"><div class="brand"><span class="brand-mark">P</span> Pointy</div><span class="pill">No sign-up needed</span></header>
+  <header class="topbar shell"><div class="brand"><span class="brand-mark">P</span> Pointy</div><fieldset class="theme-switch"><legend>Theme</legend><label><input type="radio" name="theme" value="light"> Light</label><label><input type="radio" name="theme" value="dark"> Dark</label></fieldset><span class="pill">No sign-up needed</span></header>
   <main class="landing shell">
     <section class="landing-copy">
       <p class="eyebrow">Estimate together · ship with confidence</p>
@@ -24,6 +25,7 @@
       <p class="join-link">Have an invite? Open the link your host shared.</p>
     </section>
   </main>
-  <script src="./static/home.js" defer></script>
+  <script src="./static/theme.js?v=7" defer></script>
+  <script src="./static/home.js?v=7" defer></script>
 </body>
 </html>
