@@ -9,7 +9,7 @@
     <span class="connection" id="connection"><i class="connection-dot"></i><span>Connecting</span></span>
   </header>
   <main class="room-grid shell">
-    <aside class="sidebar"><p class="section-label">Team · <span id="member-count">0</span></p><div class="participant-list" id="participants"></div></aside>
+    <aside class="sidebar"><p class="section-label">Team · <span id="member-count">0</span></p><div class="participant-list" id="participants"></div><button class="secondary claim-host" id="claim-host" hidden>Become host</button></aside>
     <section class="main">
       <div class="task-card"><div class="task-copy"><p class="section-label">Now estimating</p><form id="task-form"><input id="task" name="task" maxlength="160" aria-label="Current task" autocomplete="off" value="Waiting for room…"></form></div><span class="round-badge" id="round">Round 1</span></div>
       <div class="arena">
@@ -34,7 +34,6 @@
           <button class="primary" type="submit">Start new round</button>
         </form>
       </section>
-      <button class="secondary claim-host" id="claim-host" hidden>Become host</button>
       <section class="history" id="history">
         <div class="history-heading"><p class="section-label">Estimate history</p><button class="secondary export-history" id="export-history" type="button">Copy / export</button></div>
         <p class="empty-stats" id="history-empty">No completed estimates yet.</p><div id="history-list"></div>
