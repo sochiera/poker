@@ -32,6 +32,32 @@ def test_create_join_and_hidden_votes():
     assert state["statistics"] is None
 
 
+def test_reveal_exposes_voters_for_each_card():
+    now = 1000.0
+    room, host, guest = room_with_two(now)
+    domain.vote(room, host, 8, now)
+    domain.vote(room, guest, 8, now)
+    skipper = domain.add_participant(room, "Grace", now, 50)
+    domain.connect(room, skipper, "c-3", now, LEASE)
+    domain.vote(room, skipper, "☕", now)
+
+    # Before the reveal every vote stays hidden, so no card has any voters.
+    hidden = domain.snapshot(room, now)
+    assert all(p["vote"] is None for p in hidden["participants"])
+
+    # After the reveal the voters of a card are the participants whose
+    # vote equals that card — this is what the room shows under it.
+    domain.reveal(room, host, now)
+    state = domain.snapshot(room, now)
+    voters_of = lambda card: [p["nickname"] for p in state["participants"]
+                              if p["hasVoted"] and p["vote"] == card]
+    assert voters_of(8) == ["Ada", "Linus"]
+    assert voters_of("☕") == ["Grace"]
+    for card in domain.CARDS:
+        if card not in (8, "☕"):
+            assert voters_of(card) == []
+
+
 def test_reveal_statistics_ignore_non_numeric_votes():
     now = 1000.0
     room, host, guest = room_with_two(now)

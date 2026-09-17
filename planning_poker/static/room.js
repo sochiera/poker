@@ -96,8 +96,15 @@ function render() {
     ${p.isHost ? '<span class="host-tag">Host</span>' : ''}
     ${isHost && p.id !== me ? `<button class="kick" type="button" data-kick="${escapeHtml(p.id)}" title="Remove">Remove</button>` : ''}
     ${state.revealed ? `<span class="revealed-vote">${p.hasVoted ? escapeHtml(p.vote) : '—'}</span>` : `<span class="vote-status ${p.hasVoted?'done':''}"></span>`}</div>`).join('');
-  $('#cards').innerHTML = state.cards.map(card => `<button class="card ${selectedVote === card ? 'selected':''}" ${state.revealed?'disabled':''} data-vote="${escapeHtml(card)}"><span>${escapeHtml(card)}</span></button>`).join('');
-  $('#cards').querySelectorAll('.card').forEach((button, index) => button.onclick = () => { selectedVote = state.cards[index]; send({type:'vote',value:selectedVote}); render(); });
+  $('#cards').innerHTML = state.cards.map((card, index) => {
+    const voters = state.revealed
+      ? state.participants.filter(p => p.hasVoted && p.vote === card).map(p => p.nickname)
+      : null;
+    return `<div class="card-slot"><button class="card ${selectedVote === card ? 'selected':''}" ${state.revealed?'disabled':''} data-vote="${escapeHtml(card)}" data-index="${index}"><span>${escapeHtml(card)}</span></button>`
+      + (voters?.length ? `<span class="card-voters" data-voters="${escapeHtml(card)}">${voters.map(n => escapeHtml(n)).join('<br>')}</span>` : '')
+      + '</div>';
+  }).join('');
+  $('#cards').querySelectorAll('.card').forEach(button => button.onclick = () => { selectedVote = state.cards[Number(button.dataset.index)]; send({type:'vote',value:selectedVote}); render(); });
   const voted = state.participants.filter(p => p.hasVoted).length;
   $('#progress').style.width = `${state.participants.length ? voted/state.participants.length*100 : 0}%`;
   $('#progress-label').textContent = `${voted} of ${state.participants.length} voted`;
