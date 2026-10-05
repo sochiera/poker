@@ -130,7 +130,8 @@ def create_app(settings: Settings | None = None, store: RoomStore | None = None)
 
     async def heartbeat_loop(socket: WebSocket, code: str, participant_id: str, connection_id: str) -> None:
         """Keep this connection's presence lease alive. If it cannot be renewed
-        (expired room or session) the socket is closed so the client reconnects."""
+        (expired room or session, or an unexpected store error) the socket is
+        closed so the client reconnects instead of silently going stale."""
         while True:
             await asyncio.sleep(settings.heartbeat_interval)
             try:
@@ -140,6 +141,13 @@ def create_app(settings: Settings | None = None, store: RoomStore | None = None)
                 await emit_error(socket, error)
                 try:
                     await socket.close(code=1008)
+                except RuntimeError:
+                    pass
+                return
+            except Exception:  # noqa: BLE001 - do not let the lease go stale silently
+                logger.exception("Heartbeat failed unexpectedly for room %s", code)
+                try:
+                    await socket.close(code=1011)
                 except RuntimeError:
                     pass
                 return
